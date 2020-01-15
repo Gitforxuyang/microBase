@@ -2,9 +2,12 @@ package microBase
 
 import (
 	"context"
+	"fmt"
 	go_micro_srv_example "github.com/Gitforxuyang/microBase/proto/example"
 	"github.com/go-errors/errors"
+	"os"
 	"testing"
+	"time"
 )
 
 type Example struct{}
@@ -43,8 +46,27 @@ func (e *Example) PingPong(ctx context.Context, stream go_micro_srv_example.Exam
 	}
 }
 
+var service MicroService
+
+func TestMain(m *testing.M) {
+	service = MicroInit()
+	exitCode := m.Run()
+	os.Exit(exitCode)
+}
+
 func TestMicroInit(t *testing.T) {
-	service := MicroInit()
-	go_micro_srv_example.RegisterExampleHandler(service.Server(), new(Example))
-	service.Run()
+	//go_micro_srv_example.RegisterExampleHandler(service.Server(), new(Example))
+	//service.Run()
+	client := service.Client()
+	srv := go_micro_srv_example.NewExampleService("127.0.0.1:7001", client)
+	rsp, err := srv.Call(context.TODO(), &go_micro_srv_example.Request{Name: "123123"})
+	if err != nil {
+		fmt.Printf(err.Error())
+	}
+	fmt.Println(rsp)
+	time.Sleep(time.Second * 2)
+}
+
+func TestClient(t *testing.T) {
+	//fmt.Println(1111)
 }

@@ -4,12 +4,14 @@ import (
 	"flag"
 	"fmt"
 	"github.com/Gitforxuyang/microBase/conf"
-	"github.com/Gitforxuyang/microBase/middleware"
 	"github.com/Gitforxuyang/microBase/trace"
 	"github.com/Gitforxuyang/microBase/util"
+	"github.com/Gitforxuyang/microBase/wrapper"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	memory2 "github.com/micro/go-micro/broker/memory"
+	"github.com/micro/go-micro/client"
+	"github.com/micro/go-micro/client/selector/static"
 	"github.com/micro/go-micro/config"
 	"github.com/micro/go-micro/config/source/file"
 	"github.com/micro/go-micro/registry/memory"
@@ -21,6 +23,7 @@ import (
 type MicroService interface {
 	Server() server.Server
 	Run()
+	Client() client.Client
 }
 
 type microService struct {
@@ -36,6 +39,10 @@ func (m *microService) Run() {
 		log.Fatal(err)
 		panic("server run err")
 	}
+}
+
+func (m *microService) Client() client.Client {
+	return m.s.Client()
 }
 
 func MicroInit() MicroService {
@@ -68,14 +75,16 @@ func MicroInit() MicroService {
 		micro.Address(fmt.Sprintf("0.0.0.0:%d", port)),
 		micro.Registry(memory.NewRegistry()),
 		micro.Broker(memory2.NewBroker()),
+		micro.Selector(static.NewSelector()),
 		micro.Flags(cli.StringFlag{
 			Name:   "ENV",
 			EnvVar: "ENV",
 			Value:  "local",
 		}),
 		micro.WrapHandler(
-			middleware.NewTraceWrapper(tracer),
-			middleware.NewLogWrapper()),
+			wrapper.NewTraceWrapper(tracer),
+			wrapper.NewLogWrapper()),
+		micro.WrapCall(wrapper.NewCallTraceWrapper(tracer)),
 		micro.BeforeStart(func() error {
 			return nil
 		}),
