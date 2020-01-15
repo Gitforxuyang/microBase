@@ -1,4 +1,4 @@
-package microBase
+package util
 
 import (
 	"context"
@@ -11,7 +11,7 @@ var (
 	microLog *logrus.Logger
 )
 
-func initLog() {
+func InitLog() {
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 	logrus.SetOutput(os.Stdout)
 	logrus.SetLevel(logrus.InfoLevel)

@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Gitforxuyang/microBase"
 	"github.com/Gitforxuyang/microBase/trace"
+	"github.com/Gitforxuyang/microBase/util"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/util/log"
 	"github.com/opentracing/opentracing-go"
@@ -21,19 +21,19 @@ func NewLogWrapper() server.HandlerWrapper {
 				r := recover()
 				//TODO:sentry异常捕获
 				if r != nil {
-					microBase.InfoKV(ctx,
+					util.InfoKV(ctx,
 						logrus.Fields{"service": req.Service(),
 							"endpoint": req.Endpoint(), "method": req.Method(), "body": req.Body()}, fmt.Sprintf("panic: %s", r))
 					err = errors.New(fmt.Sprintf("panic: %s", r))
 				}
 			}()
 			//进入时打印日志
-			microBase.InfoKV(ctx,
+			util.InfoKV(ctx,
 				logrus.Fields{"service": req.Service(),
 					"endpoint": req.Endpoint(), "method": req.Method(), "body": req.Body()}, "")
 			err = handlerFunc(ctx, req, rsp)
 			//退出时打印日志
-			microBase.Info(ctx, rsp)
+			util.Info(ctx, rsp)
 			if err != nil {
 				log.Log(err.Error())
 			}
@@ -55,7 +55,7 @@ func NewTraceWrapper(ot opentracing.Tracer) server.HandlerWrapper {
 			ctx, span, err := trace.StartSpanFromContext(ctx, ot, name)
 			s, ok := span.Context().(jaeger.SpanContext)
 			if !ok {
-				microBase.Info(ctx, "spanContext转化失败")
+				util.Info(ctx, "spanContext转化失败")
 			} else {
 				//如果转化正常，将traceId携带到ctx上
 				traceId := s.TraceID().String()

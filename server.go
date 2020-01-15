@@ -6,6 +6,7 @@ import (
 	"github.com/Gitforxuyang/microBase/conf"
 	"github.com/Gitforxuyang/microBase/middleware"
 	"github.com/Gitforxuyang/microBase/trace"
+	"github.com/Gitforxuyang/microBase/util"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	memory2 "github.com/micro/go-micro/broker/memory"
@@ -38,6 +39,7 @@ func (m *microService) Run() {
 }
 
 func MicroInit() MicroService {
+	util.InitLog()
 	env := *flag.String("ENV", "local", "环境变量")
 	if env != "prod" && env != "dev" && env != "local" {
 		panic("ENV只能是local dev prod之一")
