@@ -1,4 +1,4 @@
-module gitlab.neoclub.cn/cms/go/microbase
+module github.com/Gitforxuyang/microBase
 
 go 1.12
 
