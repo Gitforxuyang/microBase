@@ -24,7 +24,7 @@ func GetConfig(env string) Config {
 func initLocalConfig() Config {
 	config := Config{}
 	t := traceingConfig{
-		Endpoint: "http://192.168.3.23:14268/api/traces",
+		Endpoint: "http://127.0.0.1:14268/api/traces",
 	}
 	config.Traceing = t
 	return config

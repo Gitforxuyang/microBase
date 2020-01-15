@@ -56,7 +56,7 @@ func MicroInit() MicroService {
 	Must(err)
 	val := config.Get("port")
 	port := val.Int(7001)
-	name := config.Get("name").String("default server name")
+	name := config.Get("name").String("server")
 	version := config.Get("version").String("0.0.1")
 
 	tracer, closer, err := trace.NewTracer(fmt.Sprintf("%s_%s", name, env), baseConfig.Traceing.Endpoint)

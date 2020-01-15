@@ -7,7 +7,6 @@ import (
 	"github.com/Gitforxuyang/microBase/trace"
 	"github.com/Gitforxuyang/microBase/util"
 	"github.com/micro/go-micro/server"
-	"github.com/micro/go-micro/util/log"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/sirupsen/logrus"
@@ -21,21 +20,18 @@ func NewLogWrapper() server.HandlerWrapper {
 				r := recover()
 				//TODO:sentry异常捕获
 				if r != nil {
-					util.InfoKV(ctx,
-						logrus.Fields{"service": req.Service(),
-							"endpoint": req.Endpoint(), "method": req.Method(), "body": req.Body()}, fmt.Sprintf("panic: %s", r))
+					util.Error(ctx, fmt.Sprintf("panic: %s", r))
 					err = errors.New(fmt.Sprintf("panic: %s", r))
 				}
 			}()
 			//进入时打印日志
 			util.InfoKV(ctx,
-				logrus.Fields{"service": req.Service(),
-					"endpoint": req.Endpoint(), "method": req.Method(), "body": req.Body()}, "")
+				logrus.Fields{"method": req.Method(), "body": req.Body()}, "")
 			err = handlerFunc(ctx, req, rsp)
 			//退出时打印日志
 			util.Info(ctx, rsp)
 			if err != nil {
-				log.Log(err.Error())
+				util.Error(ctx, err.Error())
 			}
 			return err
 		}
@@ -48,18 +44,19 @@ func NewTraceWrapper(ot opentracing.Tracer) server.HandlerWrapper {
 			defer func() {
 				r := recover()
 				if r != nil {
-					log.Log(fmt.Sprintf("panic: %s", r))
+					util.Error(ctx, fmt.Sprintf("panic: %s", r))
 				}
 			}()
-			name := fmt.Sprintf("%s.%s", req.Service(), req.Endpoint())
+			name := req.Method()
 			ctx, span, err := trace.StartSpanFromContext(ctx, ot, name)
+			span.SetTag("span.kind", "server")
 			s, ok := span.Context().(jaeger.SpanContext)
 			if !ok {
 				util.Info(ctx, "spanContext转化失败")
 			} else {
 				//如果转化正常，将traceId携带到ctx上
 				traceId := s.TraceID().String()
-				ctx = context.WithValue(ctx, traceId, traceId)
+				ctx = context.WithValue(ctx, "traceId", traceId)
 			}
 			if err != nil {
 				return err
@@ -69,7 +66,7 @@ func NewTraceWrapper(ot opentracing.Tracer) server.HandlerWrapper {
 			//当处理函数返回错误时，记录进链路
 			if err != nil {
 				ext.Error.Set(span, true)
-				span.LogKV(err)
+				span.LogKV("error.kind", err.Error(), "message", err.Error())
 			}
 			return err
 		}
