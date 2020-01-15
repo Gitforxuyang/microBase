@@ -3,6 +3,9 @@ package microBase
 import (
 	"flag"
 	"fmt"
+	"github.com/Gitforxuyang/microBase/conf"
+	"github.com/Gitforxuyang/microBase/middleware"
+	"github.com/Gitforxuyang/microBase/trace"
 	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	memory2 "github.com/micro/go-micro/broker/memory"
@@ -12,9 +15,6 @@ import (
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/service/grpc"
 	"github.com/micro/go-micro/util/log"
-	"gitlab.neoclub.cn/cms/go/microbase/conf"
-	"gitlab.neoclub.cn/cms/go/microbase/middleware"
-	"gitlab.neoclub.cn/cms/go/microbase/trace"
 )
 
 type MicroService interface {

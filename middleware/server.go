@@ -4,14 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Gitforxuyang/microBase"
+	"github.com/Gitforxuyang/microBase/trace"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/util/log"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/sirupsen/logrus"
 	"github.com/uber/jaeger-client-go"
-	"gitlab.neoclub.cn/cms/go/microbase"
-	"gitlab.neoclub.cn/cms/go/microbase/trace"
 )
 
 func NewLogWrapper() server.HandlerWrapper {
