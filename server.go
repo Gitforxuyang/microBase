@@ -84,6 +84,7 @@ func MicroInit() MicroService {
 		micro.WrapHandler(
 			wrapper.NewTraceWrapper(tracer),
 			wrapper.NewLogWrapper()),
+		micro.WrapClient(wrapper.NewClientWrapper()),
 		micro.WrapCall(wrapper.NewCallTraceWrapper(tracer)),
 		micro.BeforeStart(func() error {
 			return nil

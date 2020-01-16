@@ -24,12 +24,26 @@ func NewCallTraceWrapper(ot opentracing.Tracer) client.CallWrapper {
 			}
 			defer span.Finish()
 			err = callFunc(ctx, node, req, rsp, opts)
+			fmt.Println(111)
 			if err != nil {
 				util.ErrorKV(ctx, logrus.Fields{"req": req.Body(), "rsp": rsp}, err.Error())
 				ext.Error.Set(span, true)
 				span.LogKV("error.kind", err.Error(), "message", err.Error())
 			}
+
 			return err
 		}
+	}
+}
+
+func NewClientWrapper() client.Wrapper {
+	return func(c client.Client) client.Client {
+		fmt.Println("client wrapper")
+		//设置重试次数=0
+		if err := c.Init(client.Retries(3)); err != nil {
+			fmt.Println(err)
+		}
+
+		return c
 	}
 }
