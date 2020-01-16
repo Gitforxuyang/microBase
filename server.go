@@ -1,18 +1,15 @@
 package microBase
 
 import (
-	"flag"
 	"fmt"
 	"github.com/Gitforxuyang/microBase/conf"
 	"github.com/Gitforxuyang/microBase/trace"
 	"github.com/Gitforxuyang/microBase/util"
 	"github.com/Gitforxuyang/microBase/wrapper"
-	"github.com/micro/cli"
 	"github.com/micro/go-micro"
 	memory2 "github.com/micro/go-micro/broker/memory"
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/client/selector/static"
-	"github.com/micro/go-micro/config"
 	"github.com/micro/go-micro/registry/memory"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/service/grpc"
@@ -44,13 +41,14 @@ func (m *microService) Client() client.Client {
 	return m.s.Client()
 }
 
+var (
+	BaseConfig conf.Config
+)
+
 func MicroInit() MicroService {
 	util.InitLog()
-	env := *flag.String("ENV", "local", "环境变量")
-	if env != "prod" && env != "dev" && env != "local" {
-		panic("ENV只能是local dev prod之一")
-	}
-	baseConfig := conf.GetConfig(env)
+	BaseConfig = conf.InitConfig()
+	//= conf.GetConfig(env)
 	//err := config.Load(
 	//	file.NewSource(
 	//		file.WithPath("./conf/config.default.json"),
@@ -60,27 +58,28 @@ func MicroInit() MicroService {
 	//	),
 	//)
 	//Must(err)
-	conf.InitFileConfig(env)
-	val := config.Get("port")
-	port := val.Int(7001)
-	name := config.Get("name").String("server")
-	version := config.Get("version").String("0.0.1")
-	util.ErrInit(port)
-	tracer, closer, err := trace.NewTracer(fmt.Sprintf("%s_%s", name, env), baseConfig.Traceing.Endpoint)
+	//val := config.Get("port")
+	//port := val.Int(7001)
+	//name := config.Get("name").String("server")
+	//version := config.Get("version").String("0.0.1")
+	util.ErrInit(BaseConfig.ServerConfig.Port)
+	tracer, closer, err := trace.NewTracer(
+		fmt.Sprintf("%s_%s", BaseConfig.ServerConfig.ServerName, BaseConfig.ServerConfig.Env),
+		BaseConfig.Traceing.Endpoint)
 	util.Must(err)
 	// New Service
 	service := grpc.NewService(
-		micro.Name(name),
-		micro.Version(version),
-		micro.Address(fmt.Sprintf("0.0.0.0:%d", port)),
+		micro.Name(BaseConfig.ServerConfig.ServerName),
+		micro.Version(BaseConfig.ServerConfig.Version),
+		micro.Address(fmt.Sprintf("0.0.0.0:%d", BaseConfig.ServerConfig.Port)),
 		micro.Registry(memory.NewRegistry()),
 		micro.Broker(memory2.NewBroker()),
 		micro.Selector(static.NewSelector()),
-		micro.Flags(cli.StringFlag{
-			Name:   "ENV",
-			EnvVar: "ENV",
-			Value:  "local",
-		}),
+		//micro.Flags(cli.StringFlag{
+		//	Name:   "ENV",
+		//	EnvVar: "ENV",
+		//	Value:  "local",
+		//}),
 		micro.WrapHandler(
 			wrapper.NewTraceWrapper(tracer),
 			wrapper.NewLogWrapper()),
@@ -90,7 +89,7 @@ func MicroInit() MicroService {
 			return nil
 		}),
 		micro.AfterStart(func() error {
-			log.Infof("server started listen in :%d", port)
+			log.Infof("server started listen in :%d", BaseConfig.ServerConfig.Port)
 			return nil
 		}),
 		micro.BeforeStop(func() error {
