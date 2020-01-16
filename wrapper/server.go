@@ -2,7 +2,6 @@ package wrapper
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/Gitforxuyang/microBase/trace"
 	"github.com/Gitforxuyang/microBase/util"
@@ -21,7 +20,7 @@ func NewLogWrapper() server.HandlerWrapper {
 				//TODO:sentry异常捕获
 				if r != nil {
 					util.Error(ctx, fmt.Sprintf("panic: %s", r))
-					err = errors.New(fmt.Sprintf("panic: %s", r))
+					err = util.NewUnkownError(fmt.Sprintf("panic: %s", r))
 				}
 			}()
 			//进入时打印日志
@@ -52,21 +51,21 @@ func NewTraceWrapper(ot opentracing.Tracer) server.HandlerWrapper {
 			span.SetTag("span.kind", "server")
 			s, ok := span.Context().(jaeger.SpanContext)
 			if !ok {
-				util.Info(ctx, "spanContext转化失败")
+				util.Error(ctx, "spanContext转化失败")
 			} else {
 				//如果转化正常，将traceId携带到ctx上
 				traceId := s.TraceID().String()
 				ctx = context.WithValue(ctx, "traceId", traceId)
 			}
-			if err != nil {
-				return err
-			}
+			//if err != nil {
+			//	return err
+			//}
 			defer span.Finish()
 			err = h(ctx, req, rsp)
 			//当处理函数返回错误时，记录进链路
 			if err != nil {
 				ext.Error.Set(span, true)
-				span.LogKV("error.kind", err.Error(), "message", err.Error())
+				span.LogKV("error.object", err.Error(), "event", "error")
 			}
 			return err
 		}

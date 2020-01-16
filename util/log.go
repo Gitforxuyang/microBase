@@ -9,6 +9,7 @@ import (
 
 var (
 	microLog *logrus.Logger
+	MicroLog *logrus.Logger
 )
 
 func InitLog() {
@@ -19,6 +20,7 @@ func InitLog() {
 	baseLog := &baseLog{logger: logger}
 	log.SetLogger(baseLog)
 	microLog = logger
+	MicroLog = logger
 }
 
 type baseLog struct {

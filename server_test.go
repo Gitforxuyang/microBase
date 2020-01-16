@@ -5,7 +5,6 @@ import (
 	"fmt"
 	go_micro_srv_example "github.com/Gitforxuyang/microBase/proto/example"
 	"github.com/go-errors/errors"
-	client2 "github.com/micro/go-micro/client"
 	"os"
 	"testing"
 	"time"
@@ -59,7 +58,6 @@ func TestMicroInit(t *testing.T) {
 	//go_micro_srv_example.RegisterExampleHandler(service.Server(), new(Example))
 	//service.Run()
 	client := service.Client()
-	client.Init(client2.Retries(0))
 	srv := go_micro_srv_example.NewExampleService("127.0.0.1:7001", client)
 	rsp, err := srv.Call(context.TODO(), &go_micro_srv_example.Request{Name: "123123"})
 	if err != nil {
