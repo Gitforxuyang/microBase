@@ -13,7 +13,6 @@ import (
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/client/selector/static"
 	"github.com/micro/go-micro/config"
-	"github.com/micro/go-micro/config/source/file"
 	"github.com/micro/go-micro/registry/memory"
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/service/grpc"
@@ -52,15 +51,16 @@ func MicroInit() MicroService {
 		panic("ENV只能是local dev prod之一")
 	}
 	baseConfig := conf.GetConfig(env)
-	err := config.Load(
-		file.NewSource(
-			file.WithPath("./conf/config.default.json"),
-		),
-		file.NewSource(
-			file.WithPath(fmt.Sprintf("./conf/config.%s.json", env)),
-		),
-	)
-	Must(err)
+	//err := config.Load(
+	//	file.NewSource(
+	//		file.WithPath("./conf/config.default.json"),
+	//	),
+	//	file.NewSource(
+	//		file.WithPath(fmt.Sprintf("./conf/config.%s.json", env)),
+	//	),
+	//)
+	//Must(err)
+	conf.InitFileConfig(env)
 	val := config.Get("port")
 	port := val.Int(7001)
 	name := config.Get("name").String("server")

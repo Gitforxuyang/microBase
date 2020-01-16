@@ -20,7 +20,7 @@ func NewLogWrapper() server.HandlerWrapper {
 				//TODO:sentry异常捕获
 				if r != nil {
 					util.Error(ctx, fmt.Sprintf("panic: %s", r))
-					err = util.NewUnkownError(fmt.Sprintf("panic: %s", r))
+					err = util.NewUnknowError(fmt.Sprintf("panic: %s", r))
 				}
 			}()
 			//进入时打印日志
