@@ -29,7 +29,6 @@ func NewCallTraceWrapper(ot opentracing.Tracer) client.CallWrapper {
 				ext.Error.Set(span, true)
 				span.LogKV("error.kind", err.Error(), "message", err.Error())
 			}
-			fmt.Println("v0.0.10")
 			return err
 		}
 	}
