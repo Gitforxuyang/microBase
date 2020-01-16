@@ -2,7 +2,7 @@ package conf
 
 import (
 	"fmt"
-	"github.com/Gitforxuyang/microBase"
+	"github.com/Gitforxuyang/microBase/util"
 	"github.com/micro/go-micro/config"
 	"github.com/micro/go-micro/config/source/file"
 	"path/filepath"
@@ -41,14 +41,14 @@ func initLocalConfig() Config {
 func InitFileConfig(env string) {
 	sp := string(filepath.Separator)
 	appPath, _ := filepath.Abs(filepath.Dir(filepath.Join("."+sp, sp)))
-	pt := filepath.Join(appPath, "conf")
+	pt := filepath.Join(appPath, "/conf")
 	err := config.Load(
 		file.NewSource(
-			file.WithPath(pt+"config.default.json"),
+			file.WithPath(pt+"/config.default.json"),
 		),
 		file.NewSource(
-			file.WithPath(fmt.Sprintf(pt+"config.%s.json", env)),
+			file.WithPath(fmt.Sprintf(pt+"/config.%s.json", env)),
 		),
 	)
-	microBase.Must(err)
+	util.Must(err)
 }

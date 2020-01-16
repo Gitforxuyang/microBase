@@ -67,7 +67,7 @@ func MicroInit() MicroService {
 	version := config.Get("version").String("0.0.1")
 	util.ErrInit(port)
 	tracer, closer, err := trace.NewTracer(fmt.Sprintf("%s_%s", name, env), baseConfig.Traceing.Endpoint)
-	Must(err)
+	util.Must(err)
 	// New Service
 	service := grpc.NewService(
 		micro.Name(name),
