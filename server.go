@@ -14,6 +14,7 @@ import (
 	"github.com/micro/go-micro/server"
 	"github.com/micro/go-micro/service/grpc"
 	"github.com/micro/go-micro/util/log"
+	"github.com/opentracing/opentracing-go"
 )
 
 type MicroService interface {
@@ -43,6 +44,7 @@ func (m *microService) Client() client.Client {
 
 var (
 	BaseConfig conf.Config
+	BaseTracer opentracing.Tracer
 )
 
 func MicroInit() MicroService {
@@ -66,6 +68,7 @@ func MicroInit() MicroService {
 	tracer, closer, err := trace.NewTracer(
 		fmt.Sprintf("%s_%s", BaseConfig.ServerConfig.ServerName, BaseConfig.ServerConfig.Env),
 		BaseConfig.Traceing.Endpoint)
+	BaseTracer = tracer
 	util.Must(err)
 	// New Service
 	service := grpc.NewService(
@@ -94,7 +97,7 @@ func MicroInit() MicroService {
 		}),
 		micro.BeforeStop(func() error {
 			//log.Info("before end")
-			closer.Close()
+			//closer.Close()
 			return nil
 		}),
 		micro.AfterStop(func() error {
