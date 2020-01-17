@@ -102,6 +102,7 @@ func MicroInit() MicroService {
 		}),
 		micro.AfterStop(func() error {
 			log.Info("server closed")
+			closer.Close()
 			return nil
 		}),
 	)
