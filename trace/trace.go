@@ -2,6 +2,7 @@ package trace
 
 import (
 	"context"
+	"fmt"
 	"github.com/micro/go-micro/metadata"
 	"github.com/opentracing/opentracing-go"
 )
@@ -12,6 +13,7 @@ func StartSpanFromContext(ctx context.Context, tracer opentracing.Tracer, name s
 		md = make(map[string]string)
 	}
 
+	fmt.Printf("server version 0.0.16")
 	// copy the metadata to prevent race
 	md = metadata.Copy(md)
 	// Find parent span.
