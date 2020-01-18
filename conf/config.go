@@ -63,6 +63,7 @@ func InitConfig() Config {
 	)
 	util.Must(err)
 	cfg := GetConfig(env)
+	cfg.ServerConfig.Env = env
 	cfg.ServerConfig.Port = config.Get("port").Int(7001)
 	cfg.ServerConfig.Version = config.Get("port").String("0.0.1")
 	cfg.ServerConfig.ServerName = config.Get("name").String("server")
